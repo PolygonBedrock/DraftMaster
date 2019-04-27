@@ -1,0 +1,31 @@
+{
+	"name": "Draft Master",
+	"version": "3.1.0",
+	"description": "Drafting helper for Dota 2.",
+	"main": "./src/main/DraftMaster.py",
+	"packages": [
+		"pickle",
+		"sys",
+		"platform",
+		"os",
+		"itertools",
+		"copy",
+		"random",
+        "ctypes",
+		"prettytable"
+	],
+	"include_files": {
+      "./data": "./data",
+	  "./src/utils": "./utils",
+	  "./src/main": "./main",
+      "./src/openers": "./openers"
+	},
+    "exclude_files": [
+      "./dist/data/games.arr"
+    ],
+    "icon": "./build/DraftMaster.ico",
+	"TCL_LIBRARY": "C:/Users/Christian/AppData/Local/Programs/Python/Python36/tcl/tcl8.6",
+	"TK_LIBRARY": "C:/Users/Christian/AppData/Local/Programs/Python/Python36/tcl/tk8.6",
+	"base": "None",
+	"output_dir": "./dist/"
+}
