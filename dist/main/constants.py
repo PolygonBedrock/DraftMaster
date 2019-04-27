@@ -70,7 +70,7 @@ ALL_FILES = [HERO_INDEX_FILE, VALUES_FILE, GAMES_FILE]
 
 # DraftMaster 3
 APP_NAME = "DraftMaster"
-VERSION = "3.1.10"
+VERSION = "3.2.0"
 PATCH_NOTE = "Trained on 97,339 games of 7.21d! Accuracy at 65%!"
 APP_FULL_NAME = APP_NAME + " " + VERSION
 DECIMAL_ROUND = 3
@@ -253,7 +253,7 @@ HERO_NICKNAMES = {
     "od": "Outworld Devourer",
     "qop": "Queen of Pain",
     "sd": "Shadow Demon",
-    "rasta": "Shadow Shaman",
+    "rhasta": "Shadow Shaman",
     "sm": "Skywrath Mage",
     "wr": "Windranger",
     "ww": "Winter Wyvern",

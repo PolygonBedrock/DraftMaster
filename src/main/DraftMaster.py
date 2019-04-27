@@ -113,7 +113,7 @@ def search_hero(search):
             return hero
     for hero, index in hero_indexes.items():
         for hero_subname in hero.split(' '):
-            if hero_subname.lower().startswith(search.lower()):
+            if hero_subname.lower().startswith(search.lower()) or hero.lower() == search.lower():
                 return hero
     return None
 
