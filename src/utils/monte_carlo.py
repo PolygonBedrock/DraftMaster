@@ -3,7 +3,7 @@ from utils.misc_utils import *
 
 
 def best_naive_radiant_pick(radiant, dire, banned):
-    best_score = float("-inf")
+    best_score = NEGATIVE_INFINITY
     best_hero = None
     for hero in heroes_not_in(radiant + dire + banned):
         new_radiant = copy_list_with_hero(radiant, hero)
@@ -15,7 +15,7 @@ def best_naive_radiant_pick(radiant, dire, banned):
 
 
 def best_naive_dire_pick(radiant, dire, banned):
-    best_score = float("-inf")
+    best_score = NEGATIVE_INFINITY
     best_hero = None
     for hero in heroes_not_in(radiant + dire + banned):
         new_dire = copy_list_with_hero(dire, hero)
@@ -27,7 +27,7 @@ def best_naive_dire_pick(radiant, dire, banned):
 
 
 def worst_naive_radiant_pick(radiant, dire, banned):
-    worst_score = float("inf")
+    worst_score = POSITIVE_INFINITY
     worst_hero = None
     for hero in heroes_not_in(radiant + dire + banned):
         new_radiant = copy_list_with_hero(radiant, hero)
@@ -39,7 +39,7 @@ def worst_naive_radiant_pick(radiant, dire, banned):
 
 
 def worst_naive_dire_pick(radiant, dire, banned):
-    worst_score = float("inf")
+    worst_score = POSITIVE_INFINITY
     worst_hero = None
     for hero in heroes_not_in(radiant + dire + banned):
         new_dire = copy_list_with_hero(dire, hero)

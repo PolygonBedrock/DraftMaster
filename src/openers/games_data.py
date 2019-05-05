@@ -1,5 +1,4 @@
-from main.constants import *
-import pickle
+from main.constants import GAMES_FILE
+from utils.file_utils import *
 
-with open(GAMES_FILE, 'rb') as fp:
-	games = pickle.load(fp)
+games = open_file(GAMES_FILE)

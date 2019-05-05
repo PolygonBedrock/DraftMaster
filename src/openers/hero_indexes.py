@@ -1,5 +1,4 @@
-import pickle
 from main.constants import *
+from utils.file_utils import *
 
-with open(HERO_INDEX_FILE, 'rb') as fp:
-    hero_indexes = pickle.load(fp)
+hero_indexes = open_file(HERO_INDEX_FILE)
