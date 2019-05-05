@@ -1,10 +1,9 @@
-import pickle
 from main.constants import *
+from utils.file_utils import *
 
-with open(VALUES_FILE, 'rb') as fp:
-	values = pickle.load(fp)
-	
-hero_values = values[HEROES_KEY]
-matchup_values = values[MATCHUPS_KEY]
-combo_values = values[COMBOS_KEY]
-faction_values = values[FACTIONS_KEY]
+values_from_file = open_file(VALUES_FILE)
+
+hero_values = values_from_file[HEROES_KEY]
+matchup_values = values_from_file[MATCHUPS_KEY]
+combo_values = values_from_file[COMBOS_KEY]
+faction_values = values_from_file[FACTIONS_KEY]

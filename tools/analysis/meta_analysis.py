@@ -35,7 +35,7 @@ for first_pick_hero in hero_indexes:
         hero_scores_best = monte_carlo(radiant, dire, banned, depth, current_pick_index, pick_order, True)
         stop_time = current_time_ms()
         think_time = stop_time - start_time
-        best_score = float("-inf")
+        best_score = NEGATIVE_INFINITY
         best_hero = None
         for hero in hero_scores_worst:
             score = hero_scores_worst[hero] + hero_scores_best[hero]

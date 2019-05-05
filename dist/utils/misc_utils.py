@@ -1,4 +1,5 @@
-from openers.hero_indexes import *
+from openers.hero_indexes import hero_indexes
+from main.constants import *
 import copy
 import os
 import platform

@@ -5,7 +5,7 @@ from utils.time_utils import *
 radiant = []
 dire = []
 banned = []
-depth = 1
+depth = 2
 pick_index = 0
 pick_order = CAPTAINS_MODE_ORDER
 best_score = 0
@@ -30,7 +30,7 @@ for current_pick_index in range(pick_index, len(pick_order)):
     hero_scores_best = monte_carlo(radiant, dire, banned, depth, current_pick_index, pick_order, True)
     stop_time = current_time_ms()
     think_time = stop_time - start_time
-    best_score = float("-inf")
+    best_score = NEGATIVE_INFINITY
     best_hero = None
     for hero in hero_scores_worst:
         score = hero_scores_worst[hero] + hero_scores_best[hero]

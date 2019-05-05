@@ -1,7 +1,7 @@
 import pymongo
-import pickle
+from utils.misc_utils import *
 from pymongo import MongoClient
-
+from utils.file_utils import *
 from main.constants import *
 
 print("Setting up...")
@@ -62,11 +62,13 @@ print("Querying valid games...")
 valid_games = match_details_table.find(valid_game_filter)
 heroes = heroes_table.find({})
 hero_translation = {}
+gpm_data = {}
 
 for hero in heroes:
     hero_id = hero['id']
     name = hero['localized_name']
     hero_translation[hero_id] = name
+    gpm_data[name] = {WINNING_TOTAL_GPM_KEY: 0, LOSING_TOTAL_GPM_KEY: 0, WINS_KEY: 0, LOSSES_KEY: 0}
 
 games = []
 
@@ -75,23 +77,48 @@ for game in valid_games:
     radiant = []
     dire = []
     winner = None
-    for player in game['players']:
-        heroId = player['hero_id']
+    for player in game[API_PLAYERS]:
+        heroId = player[API_HERO_ID]
         heroName = hero_translation[heroId]
         if is_player_radiant(player):
             radiant.append(heroName)
+            if game[API_RADIANT_WIN]:
+                gpm_data[heroName][WINS_KEY] += 1
+                gpm_data[heroName][WINNING_TOTAL_GPM_KEY] += player[API_GOLD_PER_MINUTE]
+            else:
+                gpm_data[heroName][LOSSES_KEY] += 1
+                gpm_data[heroName][LOSING_TOTAL_GPM_KEY] += player[API_GOLD_PER_MINUTE]
         else:
             dire.append(heroName)
-    if game['radiant_win']:
+            if game[API_RADIANT_WIN]:
+                gpm_data[heroName][LOSSES_KEY] += 1
+                gpm_data[heroName][LOSING_TOTAL_GPM_KEY] += player[API_GOLD_PER_MINUTE]
+            else:
+                gpm_data[heroName][WINS_KEY] += 1
+                gpm_data[heroName][WINNING_TOTAL_GPM_KEY] += player[API_GOLD_PER_MINUTE]
+    if game[API_RADIANT_WIN]:
         winner = RADIANT_KEY
     else:
         winner = DIRE_KEY
-    data = {RADIANT_KEY: radiant, DIRE_KEY: dire, WINNER_KEY: winner}
-    games.append(data)
+    game_data = {RADIANT_KEY: radiant, DIRE_KEY: dire, WINNER_KEY: winner}
+    games.append(game_data)
+
+costs = {}
+max_cost = NEGATIVE_INFINITY
+min_cost = POSITIVE_INFINITY
+
+for hero in gpm_data:
+    costs[hero] = gpm_data[hero][WINNING_TOTAL_GPM_KEY] / gpm_data[hero][WINS_KEY] - \
+                  gpm_data[hero][LOSING_TOTAL_GPM_KEY] / gpm_data[hero][LOSSES_KEY]
+    max_cost = max(max_cost, costs[hero])
+    min_cost = min(min_cost, costs[hero])
+
+for hero in costs:
+    costs[hero] = normalize(costs[hero], max_cost, min_cost, 1, -1)
 
 print("Saving data...")
 
-with open(GAMES_FILE, 'wb') as fp:
-    pickle.dump(games, fp, protocol=pickle.HIGHEST_PROTOCOL)
+save_to_file(costs, COSTS_FILE)
+save_to_file(games, GAMES_FILE)
 
 print("Games saved: " + str(len(games)))

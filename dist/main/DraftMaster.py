@@ -384,7 +384,10 @@ def show_options(hero_scores, num_options=DEFAULT_OPTIONS_COUNT, reverse_sort=Tr
     min_score = min(hero_scores.values())
     for hero in hero_scores:
         score = hero_scores[hero]
-        hero_scores[hero] = normalize(score, max_score, min_score, 1, -1)
+        if score > 0:
+            hero_scores[hero] = normalize(score, max_score, 0, 1, 0)
+        else:
+            hero_scores[hero] = normalize(score, 0, min_score, 0, -1)
     current_num = 0
     table = new_table()
     table.field_names = [HERO_KEY.title(), VALUE_KEY.title()]
