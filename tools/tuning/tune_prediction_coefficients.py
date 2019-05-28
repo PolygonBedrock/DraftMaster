@@ -4,12 +4,11 @@ from openers.value_data import *
 
 print("Setting up...")
 
-heroes_coefficient = 10
-matchup_coefficient = 10
-combo_coefficient = 10
-faction_coefficient = 10
-cost_coefficient = 10
-coefficients = [heroes_coefficient, matchup_coefficient, combo_coefficient, faction_coefficient, cost_coefficient]
+heroes_coefficient = PREDICTION_HEROES_COEFFICIENT
+matchup_coefficient = PREDICTION_MATCHUP_COEFFICIENT
+combo_coefficient = PREDICTION_COMBO_COEFFICIENT
+faction_coefficient = PREDICTION_FACTION_COEFFICIENT
+coefficients = [heroes_coefficient, matchup_coefficient, combo_coefficient, faction_coefficient]
 average = sum(coefficients) / len(coefficients)
 tune_value = average / 2
 
@@ -22,10 +21,10 @@ def get_accuracy():
         dire = game[DIRE_KEY]
         winner = game[WINNER_KEY]
         radiant_score, dire_score = predict(radiant, dire, heroes_coefficient, matchup_coefficient, combo_coefficient,
-                                            faction_coefficient, cost_coefficient)
+                                            faction_coefficient)
         difference = radiant_score - dire_score
         differences.append(difference)
-        if radiant_score > dire_score and winner == RADIANT_KEY or dire_score > radiant_score and winner == DIRE_KEY:
+        if radiant_score >= dire_score and winner == RADIANT_KEY or dire_score > radiant_score and winner == DIRE_KEY:
             correct_predictions += 1
         total_predictions += 1
     return correct_predictions / total_predictions
@@ -99,23 +98,6 @@ def tune_faction():
     faction_coefficient = old_coefficient
 
 
-def tune_cost():
-    global cost_coefficient
-    global current_accuracy
-    old_coefficient = cost_coefficient
-    cost_coefficient = old_coefficient + tune_value
-    new_current_accuracy = get_accuracy()
-    if new_current_accuracy > current_accuracy:
-        current_accuracy = new_current_accuracy
-        return
-    cost_coefficient = old_coefficient - tune_value
-    new_current_accuracy = get_accuracy()
-    if new_current_accuracy > current_accuracy:
-        current_accuracy = new_current_accuracy
-        return
-    cost_coefficient = old_coefficient
-
-
 improved_fine = True
 improved_gross = True
 
@@ -130,7 +112,6 @@ while improved_gross:
         print("current matchup coefficient: " + str(matchup_coefficient))
         print("current combo coefficient: " + str(combo_coefficient))
         print("current faction coefficient: " + str(faction_coefficient))
-        print("current cost coefficient: " + str(cost_coefficient))
         print("current accuracy: " + str(current_accuracy))
         print("")
         del differences[:]
@@ -138,7 +119,6 @@ while improved_gross:
         tune_matchup()
         tune_combo()
         tune_faction()
-        tune_cost()
         if current_accuracy > best_fine_accuracy:
             print("improved fine accuracy")
             improved_fine = True
@@ -165,7 +145,6 @@ print("best heroes coefficient: " + str(heroes_coefficient))
 print("best matchup coefficient: " + str(matchup_coefficient))
 print("best combo coefficient: " + str(combo_coefficient))
 print("best faction coefficient: " + str(faction_coefficient))
-print("best cost coefficient: " + str(cost_coefficient))
 print("best accuracy: " + str(current_accuracy))
 print("")
 print("max diff: " + str(max(max(differences), abs(min(differences)))))

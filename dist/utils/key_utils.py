@@ -1,6 +1,22 @@
 from main.constants import *
 
 
+def is_matchup_key(key):
+    return len(split_matchup_key(key)) == 2
+
+
+def is_combo_key(key):
+    return len(split_combo_key(key)) == 2
+
+
+def make_matchup_key_unordered(hero1, hero2):
+    return hero1 + MATCHUP_INFIX + hero2
+
+
+def make_combo_key_unordered(hero1, hero2):
+    return hero1 + COMBO_INFIX + hero2
+
+
 def make_matchup_key(hero1, hero2):
     return make_key(hero1, hero2, MATCHUP_INFIX)
 

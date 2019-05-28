@@ -26,22 +26,17 @@ BANNED_KEY = "banned"
 WINNER_KEY = "winner"
 WINS_KEY = "wins"
 LOSSES_KEY = "losses"
-WINNING_TOTAL_GPM_KEY = "winning total gpm"
-LOSING_TOTAL_GPM_KEY = "losing total gpm"
 WINS_SUFFIX = " wins"
 WINRATE_SUFFIX = " winrate"
 ADVANTAGE_SUFFIX = " advantage"
 VALUE_SUFFIX = " value"
-VALUE_KEY = "value"
-ROSTERS_KEY = "rosters"
-PICKS_KEY = "picks"
-GAMES_KEY = "games"
 TEAM_SIZE = 5
 
 # MongoDB
 DOTA2_DATABASE = "dota2"
 HEROES_TABLE = "heroes"
 MATCH_DETAILS_TABLE = "match_details"
+STEAM_API_KEY = "E5E97D6166ADB1F6D5DB97D2F1284988"
 MONGO_HOST = "localhost"
 MONGO_PORT = 27017
 
@@ -49,7 +44,6 @@ MONGO_PORT = 27017
 API_PLAYERS = "players"
 API_HERO_ID = "hero_id"
 API_RADIANT_WIN = "radiant_win"
-API_GOLD_PER_MINUTE = "gold_per_min"
 
 # Model
 MONTE_CARLO_DEPTH = 1
@@ -62,31 +56,48 @@ MATCHUPS_KEY = "matchups"
 FACTIONS_KEY = "factions"
 MATCHUP_INFIX = " vs "
 COMBO_INFIX = " + "
-PREDICTION_HEROES_COEFFICIENT = -37.338947705961516
-PREDICTION_MATCHUP_COEFFICIENT = 1.8082189044188746
-PREDICTION_COMBO_COEFFICIENT = 1.8881899477301545
-PREDICTION_FACTION_COEFFICIENT = 34.74717143693681
-PREDICTION_COST_COEFFICIENT = 0.23902531009337702
-PREDICTION_DIFFERENCE_SCALE = 36.61120679242748
+PREDICTION_HEROES_COEFFICIENT = 8.125
+PREDICTION_MATCHUP_COEFFICIENT = 7.5
+PREDICTION_COMBO_COEFFICIENT = 15.0
+PREDICTION_FACTION_COEFFICIENT = 7.5
+PREDICTION_DIFFERENCE_SCALE = 880.78125
 PERCENTAGE_MAX = 100
 PERCENTAGE_MIN = 0
 POSITIVE_INFINITY = float("inf")
 NEGATIVE_INFINITY = float("-inf")
+SCORE_KEY = "score"
+RANK_KEY = "rank"
+VALUE_WITH_RADIANT_KEY = "Value With Radiant"
+VALUE_AGAINST_RADIANT_KEY = "Value Against Radiant"
+TOTAL_VALUE_TO_RADIANT_KEY = "Total Value To Radiant"
+VALUE_WITH_DIRE_KEY = "Value With Dire"
+VALUE_AGAINST_DIRE_KEY = "Value Against Dire"
+TOTAL_VALUE_TO_DIRE_KEY = "Total Value To Dire"
+TOTAL_VALUE_KEY = "Total Value"
+
+# Neural Network
+ROSTERS_KEY = "rosters"
+LABELS_KEY = "labels"
+ALLY_NN_OFFSET = 0
+ENEMY_NN_OFFSET = 0
+BANNED_NN_OFFSET = 0
+NN_OFFSETS = [ALLY_NN_OFFSET, ENEMY_NN_OFFSET, BANNED_NN_OFFSET]
 
 # Files
 DATA_DIR = "./data/"
 HERO_INDEX_FILE = DATA_DIR + "hero_indexes.dict"
 VALUES_FILE = DATA_DIR + "values.dict"
+EXPERIMENTAL_VALUES_FILE = DATA_DIR + "experimental_values.dict"
 GAMES_FILE = DATA_DIR + "games.arr"
-COSTS_FILE = DATA_DIR + "costs.dict"
-ALL_FILES = [HERO_INDEX_FILE, VALUES_FILE, GAMES_FILE, COSTS_FILE]
+DRAFTING_MODEL_FILE = DATA_DIR + "drafting_model.h5"
+ALL_FILES = [HERO_INDEX_FILE, VALUES_FILE, GAMES_FILE, DRAFTING_MODEL_FILE]
 
-# DraftMaster 4
+# DraftMaster 5
 APP_NAME = "DraftMaster"
-VERSION = "4.0.0"
-PATCH_NOTE = "Trained on 97,339 games of 7.21d! Accuracy at 65%!"
+VERSION = "5.1.0"
+PATCH_NOTE = "Trained on 121,852 games of 7.22! Accuracy over 65%!"
 APP_FULL_NAME = APP_NAME + " " + VERSION
-DECIMAL_ROUND = 3
+DECIMAL_ROUND = 0
 PLATFORM_WINDOWS = "Windows"
 WIN_MAXIMIZE = 3
 WIN_DLL = 'user32'
@@ -131,9 +142,11 @@ ARG_DIRE = DIRE_KEY
 ARG_BANNED = BANNED_KEY
 ARG_ALL_PICK = "allpick"
 ARG_CAPTAINS_MODE = "captains"
-ARG_GREEDY = "greedy"
-ARG_ROBUST = "robust"
-ARG_SAFE = "safe"
+ARG_BEST_CASE = "best"
+ARG_WORST_CASE = "worst"
+ARG_OPTIMAL_CASE = "optimal"
+ARG_PESSIMAL_CASE = "pessimal"
+CASE_ARGS = [ARG_BEST_CASE, ARG_WORST_CASE, ARG_OPTIMAL_CASE, ARG_PESSIMAL_CASE]
 
 HELP_HINT = "Partial hero names work.  Word order does not matter.\n"
 HELP_SELECT = "Selects a hero.  Select is the default command when available." + \
@@ -150,9 +163,7 @@ HELP_DONE = "Finishes the All Pick Banning Phase, starting the draft with the gi
 HELP_NEW = "Starts a new draft.  Example: '" + CMD_NEW + " " + ARG_ALL_PICK + "' OR '" + CMD_NEW + " " + \
            ARG_CAPTAINS_MODE + "'"
 HELP_OPTIONS = "Gives a number of the best options for the current selection.  Default is " + \
-               str(DEFAULT_OPTIONS_COUNT) + ".  Additionally, you may specify a strategy (" + ARG_SAFE + "/" + \
-               ARG_ROBUST + "/" + ARG_ROBUST + ").  Example: '" + CMD_OPTIONS + "' OR '" + CMD_OPTIONS + " " + \
-               ARG_GREEDY + " " + str(DEFAULT_OPTIONS_COUNT) + "'"
+               str(DEFAULT_OPTIONS_COUNT) + ".  Example: '" + CMD_OPTIONS + "' OR '" + CMD_OPTIONS + " 20'"
 HELP_SEARCH = "Searches for a hero.  Example: '" + CMD_SEARCH + " spec'"
 HELP_HELP = "Displays this help message.  Example: '" + CMD_HELP + "'"
 HELP_QUIT = "Quit the program.  Example: '" + CMD_QUIT + "'"
@@ -221,6 +232,11 @@ MSG_COMMAND = "Command"
 MSG_DESCRIPTION = "Description"
 MSG_MATCHUPS_HINT = "(+) favors radiant, (-) favors dire"
 MSG_PERCENT = "%"
+MSG_AVERAGE_CASE = "Average Case"
+MSG_BEST_CASE = "Best Case"
+MSG_WORST_CASE = "Worst Case"
+MSG_OPTIMAL_CASE = "Optimal Case"
+MSG_PESSIMAL_CASE = "Pessimal Case"
 
 HERO_NICKNAMES = {
     "ck": "Chaos Knight",

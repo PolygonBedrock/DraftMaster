@@ -1,6 +1,6 @@
 {
-	"name": "Draft Master",
-	"version": "3.1.0",
+	"name": "DraftMaster",
+	"version": "5.0.0",
 	"description": "Drafting helper for Dota 2.",
 	"main": "./src/main/DraftMaster.py",
 	"packages": [

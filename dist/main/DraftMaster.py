@@ -1,9 +1,7 @@
 import sys
 import ctypes
-from utils.monte_carlo import *
-from openers.value_data import *
-from utils.key_utils import *
-from utils.misc_utils import *
+from utils.drafting_utils import *
+
 
 # Welcome
 print(MSG_STARTUP)
@@ -292,7 +290,8 @@ def execute_counters(command):
                 matchup = matchup_values[matchup_key]
                 hero_value = matchup[hero_value_key]
                 enemy_value = matchup[enemy_value_key]
-                matchup_scores[matchup_key] = (hero_value - enemy_value) * -1
+                matchup_key_unordered = make_matchup_key_unordered(enemy, hero)
+                matchup_scores[matchup_key_unordered] = (hero_value - enemy_value) * -1
         if num_options:
             show_options(matchup_scores, num_options)
         else:
@@ -311,7 +310,8 @@ def execute_combos(command):
             if ally != hero:
                 combo_key = make_combo_key(hero, ally)
                 combo_value = combo_values[combo_key]
-                combo_scores[combo_key] = combo_value
+                combo_key_unordered = make_combo_key_unordered(hero, ally)
+                combo_scores[combo_key_unordered] = combo_value
         if num_options:
             show_options(combo_scores, num_options)
         else:
@@ -363,39 +363,39 @@ def execute_new(command):
     pick_index = 0
 
 
-def parse_options(command):
-    worst_case = False
-    best_case = False
-    if ARG_GREEDY in command:
-        best_case = True
-    if ARG_ROBUST in command:
-        worst_case = True
-        best_case = True
-    if ARG_SAFE in command:
-        worst_case = True
-    if not worst_case and not best_case:
-        worst_case = True
-        best_case = True
-    return best_case, worst_case
-
-
 def show_options(hero_scores, num_options=DEFAULT_OPTIONS_COUNT, reverse_sort=True):
-    max_score = max(hero_scores.values())
-    min_score = min(hero_scores.values())
-    for hero in hero_scores:
-        score = hero_scores[hero]
-        if score > 0:
-            hero_scores[hero] = normalize(score, max_score, 0, 1, 0)
-        else:
-            hero_scores[hero] = normalize(score, 0, min_score, 0, -1)
     current_num = 0
     table = new_table()
-    table.field_names = [HERO_KEY.title(), VALUE_KEY.title()]
+    table.field_names = [HERO_KEY.title(), SCORE_KEY.title()]
     for hero, score in sorted(hero_scores.items(), key=lambda kv: kv[1], reverse=reverse_sort):
         current_num += 1
         if current_num > num_options:
             break
-        table.add_row([hero, format_num(score)])
+        table.add_row([hero, str(format_num(score))])
+    show_table(table)
+    new_line()
+
+
+def show_itemized_options(itemized_hero_scores, num_options=DEFAULT_OPTIONS_COUNT, reverse_sort=True):
+    current_num = 0
+    table = new_table()
+    table.field_names = [HERO_KEY.title(), TOTAL_VALUE_KEY, TOTAL_VALUE_TO_RADIANT_KEY, TOTAL_VALUE_TO_DIRE_KEY,
+                         VALUE_WITH_RADIANT_KEY, VALUE_AGAINST_DIRE_KEY, VALUE_WITH_DIRE_KEY, VALUE_AGAINST_RADIANT_KEY]
+    for hero, itemized_scores in sorted(itemized_hero_scores.items(), key=lambda kv: kv[1][TOTAL_VALUE_KEY], reverse=reverse_sort):
+        current_num += 1
+        if current_num > num_options:
+            break
+        total_value = itemized_scores[TOTAL_VALUE_KEY]
+        total_value_to_radiant = itemized_scores[TOTAL_VALUE_TO_RADIANT_KEY]
+        total_value_to_dire = itemized_scores[TOTAL_VALUE_TO_DIRE_KEY]
+        value_with_radiant = itemized_scores[VALUE_WITH_RADIANT_KEY]
+        value_against_radiant = itemized_scores[VALUE_AGAINST_RADIANT_KEY]
+        value_with_dire = itemized_scores[VALUE_WITH_DIRE_KEY]
+        value_against_dire = itemized_scores[VALUE_AGAINST_DIRE_KEY]
+        table.add_row([hero, str(format_num(total_value)), str(format_num(total_value_to_radiant)),
+                       str(format_num(total_value_to_dire)),str(format_num(value_with_radiant)),
+                       str(format_num(value_against_dire)), str(format_num(value_with_dire)),
+                       str(format_num(value_against_radiant))])
     show_table(table)
     new_line()
 
@@ -406,21 +406,13 @@ def execute_options(command):
         return
     print(MSG_THINKING)
     num_options, command = extract_arg_number(command)
-    radiant_turn, is_pick = get_action_and_team()
-    best_case, worst_case = parse_options(command)
-    hero_scores = {}
-    if best_case:
-        best_case_hero_scores = monte_carlo(radiant, dire, banned, MONTE_CARLO_DEPTH, pick_index, pick_order,
-                                            radiant_turn)
-        hero_scores = marry_dicts(hero_scores, best_case_hero_scores)
-    if worst_case:
-        worst_case_hero_scores = monte_carlo(radiant, dire, banned, MONTE_CARLO_DEPTH, pick_index, pick_order,
-                                             not radiant_turn)
-        hero_scores = marry_dicts(hero_scores, worst_case_hero_scores)
+
+    itemized_hero_scores = get_itemized_scores(radiant, dire)
+
     if num_options:
-        show_options(hero_scores, num_options)
+        show_itemized_options(itemized_hero_scores, num_options=num_options)
     else:
-        show_options(hero_scores)
+        show_itemized_options(itemized_hero_scores)
 
 
 def execute_search(command):

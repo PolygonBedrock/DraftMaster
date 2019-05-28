@@ -1,24 +1,7 @@
-from openers.hero_indexes import hero_indexes
-from main.constants import *
-import copy
 import os
 import platform
 from prettytable import PrettyTable
-
-
-def scores_to_winrates(radiant_score, dire_score):
-    return score_difference_to_winrate(radiant_score - dire_score)
-
-
-def score_difference_to_winrate(difference):
-    radiant_winrate = normalize(difference, PREDICTION_DIFFERENCE_SCALE, -1 * PREDICTION_DIFFERENCE_SCALE,
-                                PERCENTAGE_MAX, PERCENTAGE_MIN)
-    if radiant_winrate > PERCENTAGE_MAX:
-        radiant_winrate = PERCENTAGE_MAX
-        dire_winrate = PERCENTAGE_MIN
-    else:
-        dire_winrate = PERCENTAGE_MAX - radiant_winrate
-    return radiant_winrate, dire_winrate
+from utils.key_utils import *
 
 
 def new_line():
@@ -33,8 +16,8 @@ def show_table(table, align=ALIGN_LEFT):
 
 def new_table():
     table = PrettyTable()
-    table.border = False
-    table.align = "l"
+    table.border = True
+    table.align = ALIGN_CENTER
     return table
 
 
@@ -84,7 +67,7 @@ def line_break():
 
 
 def format_num(num):
-    return str(round(num, DECIMAL_ROUND))
+    return str(int(round(num, DECIMAL_ROUND)))
 
 
 def scrub_string(command, replacements):
@@ -92,29 +75,6 @@ def scrub_string(command, replacements):
         command = command.replace(replacement, "")
     command = " ".join(command.split())
     return command.strip()
-
-
-def heroes_not_in(heroes):
-    out_heroes = []
-    for hero in hero_indexes:
-        if hero not in heroes:
-            out_heroes.append(hero)
-    return out_heroes
-
-
-def copy_list_with_hero(in_list, hero):
-    if not in_list:
-        return [hero]
-    return copy.deepcopy(in_list) + [hero]
-
-
-def get_turn_and_action(pick_index, pick_order):
-    pick = pick_order[pick_index]
-    acting_team_key = pick[TEAM_KEY]
-    action = pick[ACTION_KEY]
-    radiant_turn = acting_team_key == RADIANT_KEY
-    is_pick = action == PICK_KEY
-    return radiant_turn, is_pick
 
 
 def clear_screen():
@@ -125,3 +85,4 @@ def clear_screen():
             os.system("clear")
     except OSError:
         pass
+
