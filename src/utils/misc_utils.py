@@ -67,7 +67,7 @@ def line_break():
 
 
 def format_num(num):
-    return str(int(round(num, DECIMAL_ROUND)))
+    return str((round(num, DECIMAL_ROUND)))
 
 
 def scrub_string(command, replacements):

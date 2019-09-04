@@ -1,7 +1,7 @@
 from openers.games_data import games
 from openers.hero_indexes import hero_indexes
-from utils.key_utils import *
 from utils.file_utils import *
+from utils.advantage_utils import *
 import itertools
 
 elements_to_games = {}
@@ -11,8 +11,7 @@ matchup_values = {}
 combo_values = {}
 faction_values = {}
 
-data = {HEROES_KEY: hero_values, MATCHUPS_KEY: matchup_values, COMBOS_KEY: combo_values, FACTIONS_KEY: faction_values}
-category_keys = [FACTIONS_KEY, HEROES_KEY, MATCHUPS_KEY, COMBOS_KEY]
+category_keys = [FACTIONS_KEY, MATCHUPS_KEY, COMBOS_KEY, HEROES_KEY]
 
 
 def init():
@@ -55,6 +54,24 @@ def init():
                 if hero != ally:
                     combo_key = make_combo_key(hero, ally)
                     elements_to_games[combo_key].append(game)
+
+    for game in games:
+        radiant = game[RADIANT_KEY]
+        dire = game[DIRE_KEY]
+        radiant_win = game[WINNER_KEY] == RADIANT_KEY
+        dire_win = not radiant_win
+        for hero in radiant:
+            record_hero(hero, radiant_win)
+        for hero in dire:
+            record_hero(hero, dire_win)
+        for radiant_hero in radiant:
+            for dire_hero in dire:
+                record_matchup(radiant_hero, dire_hero, radiant_win)
+        for combo in itertools.combinations(radiant, 2):
+            record_combo(combo[0], combo[1], radiant_win)
+        for combo in itertools.combinations(dire, 2):
+            record_combo(combo[0], combo[1], dire_win)
+        record_faction(radiant_win)
 
 
 def get_roster_score(radiant, dire):
@@ -181,10 +198,32 @@ def tune_all_values():
                 improved |= tune_single_value(category_key, element_key)
 
 
+def halve_values():
+    for category_key in category_keys:
+        for element_key in data[category_key]:
+            if category_key == MATCHUPS_KEY:
+                hero, enemy = split_matchup_key(element_key)
+                hero_value_key = make_value_key(hero)
+                enemy_value_key = make_value_key(enemy)
+                data[category_key][element_key][hero_value_key] /= 2
+                data[category_key][element_key][enemy_value_key] /= 2
+            else:
+                data[category_key][element_key] /= 2
+
+
 print("Setting up...")
 init()
 
-print("Processing...")
+print("Calculating winrates...")
+calculate_winrates()
+
+print("Calculating advantages...")
+calculate_advantages()
+
+print("Assigning values...")
+assign_values()
+
+print("Tuning values...")
 tune_all_values()
 
 print("Saving file...")
